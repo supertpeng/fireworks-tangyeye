@@ -288,6 +288,28 @@ window.addEventListener('touchstart', (e) => {
   if (e.touches && e.touches.length) handleTap(e.touches[0].clientX, e.touches[0].clientY);
 }, { passive: true });
 window.addEventListener('mousedown', (e) => handleTap(e.clientX, e.clientY), { passive: true });
+
+// 终极居中：微信X5等浏览器的布局视口与实际显示区域不一致，
+// 导致 CSS 50% 居中偏右下。这里用 visualViewport 按"真实可见区域"动态定位。
+const stageEl = document.querySelector('.stage');
+function centerStage() {
+  const vv = window.visualViewport;
+  if (vv) {
+    stageEl.style.top = (vv.offsetTop + vv.height / 2) + 'px';
+    stageEl.style.left = (vv.offsetLeft + vv.width / 2) + 'px';
+  } else {
+    stageEl.style.top = '50%';
+    stageEl.style.left = '50%';
+  }
+}
+if (window.visualViewport) {
+  visualViewport.addEventListener('resize', centerStage);
+  visualViewport.addEventListener('scroll', centerStage);
+}
+window.addEventListener('orientationchange', () => setTimeout(centerStage, 100));
+centerStage();
+setTimeout(centerStage, 300);
+setTimeout(centerStage, 1000);
 </script>
 </body>
 </html>
