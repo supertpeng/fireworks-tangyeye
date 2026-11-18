@@ -6,7 +6,10 @@
 <title>❤️ 致唐叶叶 ❤️</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 100%; height: 100%; overflow: hidden; background: radial-gradient(ellipse at center, #1a0508 0%, #0d0205 70%, #080102 100%); }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: radial-gradient(ellipse at center, #1a0508 0%, #0d0205 70%, #080102 100%);
+  }
 
   /* 背景漂浮的小爱心 */
   .bg-heart {
@@ -25,15 +28,18 @@
     100% { transform: translateY(-110vh) rotate(25deg); opacity: 0; }
   }
 
-  /* 舞台 */
+  /* 舞台：显式四边定位，兼容旧手机浏览器（不支持 inset 简写） */
   .stage {
     position: fixed;
-    inset: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    text-align: center;
     z-index: 5;
+    overflow: hidden;
   }
 
   /* 心跳光圈 */
@@ -51,11 +57,11 @@
     100% { width: 520px; height: 520px; opacity: 0; }
   }
 
-  /* 大爱心（SVG 绘制，标准心形） */
+  /* 大爱心（SVG 绘制，立体光泽感，自适应屏幕） */
   .heart {
-    width: 200px;
-    height: 200px;
-    margin: 40px 0 20px;
+    width: min(200px, 46vw);
+    height: min(200px, 46vw);
+    margin: 30px 0 16px;
     cursor: pointer;
     animation: beat 1.6s cubic-bezier(.4, 0, .2, 1) infinite;
     filter: drop-shadow(0 0 40px rgba(255, 30, 60, .75)) drop-shadow(0 0 90px rgba(255, 0, 40, .4));
@@ -74,18 +80,20 @@
 
   /* 光圈位置对准爱心中心 */
   .pulse-ring {
-    top: calc(50% - 130px);
+    top: calc(50% - 118px);
     left: 50%;
   }
 
   /* 名字 */
   .name {
-    margin-top: 40px;
+    margin-top: 26px;
     font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
     font-size: clamp(34px, 6vw, 58px);
     font-weight: 800;
     color: #fff;
     letter-spacing: 10px;
+    text-indent: 10px; /* 补偿最后一个字的字间距，保证视觉居中 */
+    white-space: nowrap;
     text-shadow: 0 0 18px rgba(255, 60, 90, .9), 0 0 50px rgba(255, 0, 40, .5);
     z-index: 6;
     animation: nameGlow 2.4s ease-in-out infinite;
@@ -106,7 +114,8 @@
 
   .hint {
     position: fixed;
-    bottom: 5%;
+    bottom: 4%;
+    left: 0;
     width: 100%;
     text-align: center;
     font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -157,6 +166,18 @@
     42%      { transform: scale(1.08); }
     56%      { transform: scale(1); }
   }
+
+  /* 小屏手机适配：压缩尺寸，防止内容超出屏幕导致偏移 */
+  @media (max-height: 640px) {
+    .heart {
+      width: min(140px, 40vw);
+      height: min(140px, 40vw);
+      margin: 14px 0 8px;
+    }
+    .name { margin-top: 14px; font-size: clamp(28px, 6vw, 42px); }
+    .sub  { margin-top: 8px; font-size: clamp(12px, 2vw, 15px); }
+    .pulse-ring { top: calc(50% - 86px); }
+  }
 </style>
 </head>
 <body>
@@ -169,12 +190,21 @@
 <div class="stage">
   <svg class="heart" id="bigHeart" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <radialGradient id="heartGrad" cx="35%" cy="30%" r="80%">
-        <stop offset="0%" stop-color="#ff5c7f"/>
-        <stop offset="55%" stop-color="#e60f3c"/>
-        <stop offset="100%" stop-color="#a30024"/>
+      <radialGradient id="heartGrad" cx="35%" cy="26%" r="90%">
+        <stop offset="0%" stop-color="#ff7494"/>
+        <stop offset="40%" stop-color="#ef1e44"/>
+        <stop offset="100%" stop-color="#8c001e"/>
+      </radialGradient>
+      <linearGradient id="innerLight" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgba(255,120,145,.55)"/>
+        <stop offset="60%" stop-color="rgba(255,60,90,0)"/>
+      </linearGradient>
+      <radialGradient id="specGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="rgba(255,255,255,.85)"/>
+        <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
       </radialGradient>
     </defs>
+    <!-- 心形主体 -->
     <path fill="url(#heartGrad)"
       d="M50 88
          C 24 68, 6 48, 6 29
@@ -183,7 +213,27 @@
          C 52 11, 59 4, 69 4
          C 82 4, 94 13, 94 29
          C 94 48, 76 68, 50 88 Z"/>
-    <ellipse cx="30" cy="26" rx="13" ry="9" fill="rgba(255,255,255,.28)" transform="rotate(-25 30 26)"/>
+    <!-- 上方内透光，制造鼓起的感觉 -->
+    <path fill="url(#innerLight)"
+      d="M50 74
+         C 30 58, 14 42, 14 28
+         C 14 16, 23 10, 32 10
+         C 41 10, 48 16, 50 22
+         C 52 16, 59 10, 68 10
+         C 77 10, 86 16, 86 28
+         C 86 42, 70 58, 50 74 Z"/>
+    <!-- 高光 -->
+    <ellipse cx="29" cy="24" rx="14" ry="10" fill="url(#specGrad)" transform="rotate(-28 29 24)"/>
+    <ellipse cx="68" cy="18" rx="6" ry="4" fill="rgba(255,255,255,.4)" transform="rotate(-15 68 18)"/>
+    <!-- 边缘细描边增加轮廓感 -->
+    <path fill="none" stroke="rgba(255,150,170,.35)" stroke-width="1"
+      d="M50 88
+         C 24 68, 6 48, 6 29
+         C 6 13, 18 4, 31 4
+         C 41 4, 48 11, 50 18
+         C 52 11, 59 4, 69 4
+         C 82 4, 94 13, 94 29
+         C 94 48, 76 68, 50 88 Z"/>
   </svg>
   <div class="name">唐叶叶</div>
   <div class="sub">这颗心只为你跳动 ❤</div>
